@@ -1,0 +1,29 @@
+---
+- name: Remove and Stop WEB service
+  hosts: all
+  tasks:
+    - name: Disable service
+      firewalld: 
+        service: http
+        permanent: yes
+        immediate: yes
+        state: disabled
+    - name: Disable service - httpd
+      service:
+        name: httpd
+        state: stopped
+        enabled: no
+    - name: Remove the file - /var/www/html/index.html
+      file: 
+        path: /var/www/html/index.html
+        state: absent
+    - name: Remove the package - htppd
+      yum:
+        name: 
+          - httpd
+        state: absent
+
+
+
+
+

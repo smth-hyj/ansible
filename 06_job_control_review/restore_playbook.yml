@@ -1,0 +1,35 @@
+---
+- name: 잡 제어 플레이북 예제
+  hosts: webservers
+  gather_facts: yes
+  vars_files:
+  - vars/vars.yml
+  tasks:
+  - name: 시스템 사양점검 - 메모리 & 배포판
+    fail:
+      msg: "{{ ansible_hostname }} Minimum memory: 256MB"
+    when: 
+      - ansible_memfree_mb < 258
+      - ansible_distribution != "CentOS"
+  - name: 방화벽에서 내리기
+    firewalld:
+      service: "{{ item }}"
+      permanent: yes
+      immediate: yes
+      state: disabled
+    with_items: "{{ fw_svc }}"
+  - name: 웹서버 설정 취소
+    file:
+      path: "{{ item.dest }}"
+      state: absent
+    with_items: "{{ conf_files }}"
+    notify: stop httpd
+  - name: 웹서버 삭제
+    yum:
+      name: "{{packages}}"
+      state: absent
+  handlers:
+    - name: stop httpd
+      service:
+        name: httpd
+        state: stopped

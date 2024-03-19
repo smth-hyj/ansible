@@ -1,0 +1,33 @@
+---
+# (1) firewall service restore
+# (2) Service Off - httpd 
+# (3) service configuration delete
+# (4) Pakcage remove
+
+- name: restoring
+  hosts: all
+  tasks: 
+    - name: (1) firewall service restore
+      firewalld:
+        service: "{{ item }}"
+        permanent: true
+        immediate: true
+        state: disabled
+      loop:
+        - http
+        - https
+    - name: (2) Service Off - httpd
+      service:
+        name: httpd
+        state: stopped
+    - name: (3) Serivce configuration delete
+      file:
+        path: /var/www/html/index.html
+        state: absent
+    - name: (4) Package remove 
+      yum:
+        name: httpd
+        state: absent
+
+
+

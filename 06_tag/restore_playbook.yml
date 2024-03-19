@@ -1,0 +1,59 @@
+---
+- name: DB 작업 복원
+  hosts: databases
+  gather_facts: yes
+  vars:
+    db_packages:
+      - mariadb-server
+      - python3-PyMySQL
+    db_config_url: http://192.168.10.10
+    db_config_path: /etc/my.cnf
+    db_service: mariadb
+  tasks:
+    - name: Restore motd for production
+      file:
+        path: /etc/motd
+        state: absent
+      when: 
+      tags:
+        - prod
+    - name: Restore motd for development
+      file:
+        path: /etc/motd
+        state: absent
+      tags:
+        - dev
+    
+    - name: Restore large config file
+      file:
+        path: "{{ db_config_path }}"
+        state: absent
+      notify:
+        - restart_db
+      tags:
+        - prod
+    
+    - name: Restore Small config file
+      file:
+        path: "{{ db_config_path }}"
+        state: absent
+      notify:
+        - restart_db
+      tags:
+        - dev
+    
+    - name: Unistall database packages
+      yum:
+        name: "{{ item }}"
+        state: absent
+      with_items: "{{ db_packages }}"
+  handlers:
+    - name: restart_db
+      service:
+        name: "{{ db_service }}"
+        state: restarted
+      
+    
+
+        
+            

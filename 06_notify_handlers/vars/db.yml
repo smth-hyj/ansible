@@ -1,0 +1,6 @@
+pkg_db:
+  - mariadb-server
+  - python3-PyMySQL
+  - python3-pip
+svc_db:
+  conf_src_url: "httpd://anible.exame/conf/my.conf.stanard"

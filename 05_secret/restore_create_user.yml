@@ -1,0 +1,13 @@
+---
+- name: 복원 작업
+  hosts: all
+  become: true
+  vars_file:
+  - secret.yml
+  - secret2.yml
+  tasks:
+  - name: 유저 삭제
+    user:
+      name: "{{ username }}"
+      state: absent
+      remove: yes

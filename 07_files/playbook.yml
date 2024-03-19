@@ -1,0 +1,18 @@
+- name: Test
+  hosts: localhost
+  gather_facts: no
+  tasks:
+  - name: Add a line of text to a file
+    # ansible.builtin.lineinfile:
+    #   path: /home/ansible/file1
+    #   line: "{{item}}"
+    # loop:
+    # - '1st line'
+    # - '2nd line'
+    # - '3rd line'
+    blockinfile:
+      path: /home/ansible/file1
+      block: |
+        '1st line'
+        '2nd line'
+        '3rd line'

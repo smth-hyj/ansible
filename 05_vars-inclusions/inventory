@@ -1,0 +1,5 @@
+[fileserver]
+web1
+
+[dbserver]
+web1

@@ -1,0 +1,21 @@
+--- 
+- name: install fielserver packages
+  hosts: fileserver
+  tasks:
+    - name: includes the variables
+      ansible.builtin.include_vars:
+        package.yml
+    - name: includes the package.yml            # 따로 따로 정의안하면 안됨
+      ansible.builtin.include_tasks:
+        install_package.yml
+    - name: install the package - epel-release
+      ansible.builtin.include_tasks:
+        install_package.yml
+      vars:
+        packages:
+          web_pkg: epel-release
+    - name: Installs the package - tomcat
+      include_tasks: install_package.yml
+      vars:
+        packages: 
+          web_pkg: tomcat

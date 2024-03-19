@@ -1,0 +1,79 @@
+---
+# basic configuration
+# (1) web server
+#   - web package install : httpd, mod_ssl [x]
+#   - web service config : /var/www/html/index.php [x]
+#   - web service enable : httpd [x]
+#   - firewall : http, https 
+# (2) CGI
+#   - package install : php [x]
+# (3) DB server
+#   - db package install : mariadb-server mariadb [x]
+#   - db service enable : mariadb [x]
+#  - DB config
+#   - DB basic config : mysql_secure_installation 
+#   - add DB user/plush privileges
+#   - firewall : mysql
+
+- name: WEB server & DB server config
+  hosts: web2
+  tasks:
+    - name: package install ; httpd, mod_ssl, DB
+      yum:
+        name:
+          - httpd
+          - mod_ssl
+          - mariadb-server
+          - mariadb
+          - php-mysqlnd
+          - php-pdo
+          - python3-pip
+        state: present
+    - name: web service config ; /var/www/html/index.php
+      ansible.builtin.copy:
+        src: files/index.php
+        dest: /var/www/html/index.php
+    - name: web service config ; /var/ww/html config
+      file:
+        path: /var/www/html
+        state: directory
+        owner: ansible
+        group: ansible
+    - name: enable services ; httpd, mariadb
+      service:
+        name: 
+          "{{ item }}"
+        state: started
+        enabled: yes
+      loop:
+        - httpd
+        - mariadb
+    - name: firewall ; WEB(http, https) DB(mysql)
+      firewalld:
+        service: "{{ item }}"
+        permanent: true
+        immediate: true
+        state: enabled
+      loop:
+        - http
+        - https
+        - mysql
+    - name: DB 설정을 위한 pip3 패키지 설치
+      pip:
+        name: pymysql
+        executable: pip3
+    - name: DB config ; change root password
+      become: true
+      ansible.builtin.expect:
+        command: mysql_secure_installation
+        responses:
+          'Enter current password for root': ''
+          'Switch to unix_socket authentication': 'Y'
+          'Change the root password?': 'Y'
+          'New password:': 'soldesk1.'
+          'Re-enter new password:': 'soldesk1.'
+          'Remove anonymous users?': 'Y'
+          'Disallow root login remotely?': 'Y'
+          'Remove test database and access to it': 'Y'
+          'Reload privilege tables now': 'Y'
+        timeout: 1

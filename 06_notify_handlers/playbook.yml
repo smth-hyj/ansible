@@ -1,0 +1,39 @@
+---
+- name: DB package 설치
+  gather_facts: no
+  hosts: databases
+  vars_files:
+    - vars/db.yml
+  tasks:
+  - name: DB 패키지 설치
+    yum:
+      name: "{{ pkg_db }}"
+      state: present
+    notify:
+    - set db init
+  - name: 추가 패키지 설치
+    pip:
+      name: pymysql
+      executable: pip3
+  - name: 서비스 실행
+    service:
+      name: mariadb
+      state: started
+      enabled: yes
+    notify: set db init
+  handlers:
+  - name: set db init
+    become: true
+    ansible.builtin.expect:
+      command: mysql_secure_installation
+      responses:
+        'Enter current password for root': ''
+        'Switch to unix_socket authentication': 'Y'
+        'Change the root password?': 'Y'
+        'New password:': 'soldesk1.'
+        'Re-enter new password:': 'soldesk1.'
+        'Remove anonymous users?': 'Y'
+        'Disallow root login remotely?': 'Y'
+        'Remove test database and access to it': 'Y'
+        'Reload privilege tables now': 'Y'
+      timeout: 1

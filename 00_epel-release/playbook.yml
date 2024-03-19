@@ -1,0 +1,7 @@
+- name: 포함(include_vars/include_tasks) 사항 관리
+  hosts: webdb
+  tasks:
+  - name: epel-release 설치
+    yum: 
+      name: epel-release
+      state: latest

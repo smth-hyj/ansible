@@ -1,0 +1,34 @@
+---
+- name: Task Failure Exercise Restore
+  hosts: databases
+  vars:
+    web_package: httpd
+    db_package: mariadb-server
+    db_service: mariadb
+  tasks:
+    - name: Check local time
+      command: date
+      register: command_result
+
+    - name: Print local time
+      debug: var=command_result.stdout
+    #    var: command_result.stdout
+
+    - name: 블럭 1
+      block:
+      - name: Stop {{ db_service }} service
+        service:
+          name: "{{ db_service }}"
+          state: stopped
+
+      rescue:
+      - name: Unstall {{ db_package }} package
+        yum:
+          name: "{{ db_package }}"
+          state: absent
+
+      always:
+      - name: Uninstall {{ web_package  }} package
+        yum:
+          name: "{{ web_package }}"
+          state: absent

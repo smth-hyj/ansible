@@ -1,0 +1,45 @@
+---
+# 방화벽 등록 해제 {http, https, mariadb}
+# 서비스 멈춤 {httpd, mariadb-server}
+# 서비스 디렉토리 삭제 {/var/www}
+# 패키지 삭제 - ...
+
+- name: restore 
+  hosts: all
+  tasks:
+    - name: firewall Off
+      firewalld:
+        service: "{{ item }}"
+        permanent: true
+        immediate: true
+        state: disabled
+      loop:
+        - http
+        - https
+        - mysql
+    - name: service stopped
+      service:
+        name: "{{ item }}"
+        state: stopped
+      loop:
+        - httpd
+        - mariadb
+    - name: remove directory
+      file:
+        path: /var/www
+        state: absent
+    - name: remove packages
+      yum:
+        name:
+          - httpd
+          - mod_ssl
+          - mariadb-server
+          - mariadb
+          - php-mysqlnd
+          - php-pdo
+          - python3-pip
+          - php
+        state: absent
+
+
+

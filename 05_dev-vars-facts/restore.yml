@@ -1,0 +1,30 @@
+---
+# 방화벽 등록 해제 {http, https, mariadb}
+# 서비스 멈춤 {httpd, mariadb-server}
+# 서비스 디렉토리 삭제 {/var/www}
+# 패키지 삭제 - ...
+
+- name: restore 
+  hosts: all
+  tasks:
+  - name: 방화벽 해제
+    firewalld:
+      service: "{{ ansible_local.custom.general.fwsvc }}"
+      permanent: true
+      immediate: true
+      state: disabled
+  - name: service stopped
+    service:
+      name: "{{ ansible_local.custom.general.service }}"
+      state: stopped
+      enabled: no
+  - name: remove packages
+    yum:
+      name: "{{ansible_local.custom.general.package}}"
+      state: absent
+  - name: /etc/ansible remove
+    file:
+      path: /etc/ansible
+      state: absent
+      
+      

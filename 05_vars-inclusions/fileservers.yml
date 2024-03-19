@@ -1,0 +1,16 @@
+---
+- name: configure fileservers
+  hosts: fileserver
+  tasks:
+  - name: Imports the variables fileserver
+    include_vars: paths.yml
+  
+  - name: Creates the remote directory
+    file:
+      path: "{{ paths.fileserver }}"
+      state: directory
+      mode: 0755
+    register: result
+  - name: Debugs the results
+    debug:
+      var: result
