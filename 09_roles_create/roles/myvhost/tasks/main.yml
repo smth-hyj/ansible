@@ -1,0 +1,30 @@
+---
+# tasks file for myvhost
+ - name: 웹패키지 설치 - {{ pkg_web }}
+   yum:
+    name: "{{pkg_web}}"
+    state: latest
+
+ - name: Ensure httpd is started and enabled
+   service:
+     name: "{{ item }}"
+     state: started
+     enabled: true
+   with_items: "{{ svc_web }}"
+ 
+ - name: vhost file is installed
+   template:
+     src: vhost.conf.j2
+     dest: /etc/httpd/conf.d/vhost.conf
+     owner: root
+     group: root
+     mode: '0644'
+   notify:
+     - restart_httpd
+ 
+ - name: firewalld configuration
+   firewalld:
+     service: http
+     permanent: yes
+     immediate: yes
+     state: enabled

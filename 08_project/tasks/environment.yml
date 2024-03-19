@@ -1,0 +1,12 @@
+---
+  - name: Install the {{ package }} package
+    yum:
+      name: "{{ package }}"
+      state: latest
+
+  - name: 서비스 기동 - "{{item}}"
+    service:
+      name: "{{ item }}"
+      state: started
+      enabled: yes
+    with_items: "{{ service }}"
